@@ -1,0 +1,171 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Core Models
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String? // Hashed password
+  image         String?
+  emailVerified DateTime?
+
+  // Relations
+  memberships TenantUser[]
+  auditLogs   AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tenant {
+  id   String  @id @default(cuid())
+  name String
+  slug String  @unique
+  logo String?
+
+  // Settings
+  primaryColor String?
+  timezone     String? @default("UTC")
+
+  // Relations
+  members      TenantUser[]
+  subscription Subscription?
+  auditLogs    AuditLog[]
+
+  // Feature Modules
+  projects Project[]
+  tasks    Task[]
+  notes    Note[]
+  apiKeys  ApiKey[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TenantUser {
+  id       String @id @default(cuid())
+  tenantId String
+  userId   String
+  role     Role   @default(MEMBER)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model Subscription {
+  id        String    @id @default(cuid())
+  tenantId  String    @unique
+  plan      PlanType  @default(FREE)
+  status    String    @default("active") // active, past_due, canceled
+  startDate DateTime  @default(now())
+  endDate   DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PlanType {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+model AuditLog {
+  id        String  @id @default(cuid())
+  tenantId  String
+  userId    String?
+  action    String
+  details   String? // JSON string
+  ipAddress String?
+  userAgent String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([action])
+}
+
+// Feature Modules
+
+model Project {
+  id          String  @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model Task {
+  id         String  @id @default(cuid())
+  tenantId   String
+  title      String
+  completed  Boolean @default(false)
+  assignedTo String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model Note {
+  id       String @id @default(cuid())
+  tenantId String
+  content  String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model ApiKey {
+  id       String    @id @default(cuid())
+  tenantId String
+  key      String    @unique
+  name     String?
+  lastUsed DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+}
