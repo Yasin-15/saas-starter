@@ -1,32 +1,64 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+'use client'
+
+import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
-import { Check, CreditCard, Zap } from "lucide-react"
+import { Check, CreditCard, Loader2 } from "lucide-react"
+import { useState, useEffect } from "react"
+import { upgradeSubscription } from "../actions"
 
-export default async function BillingPage() {
-    const session = await getServerSession(authOptions)
+interface Subscription {
+    plan: string
+    status: string
+}
 
-    if (!session?.user) {
-        redirect("/login")
-    }
+interface Tenant {
+    name: string
+    subscription: Subscription | null
+}
 
-    const membership = await prisma.tenantUser.findFirst({
-        where: { userId: session.user.id },
-        include: {
-            tenant: {
-                include: {
-                    subscription: true
-                }
-            }
+export default function BillingPage() {
+    const { data: session, status } = useSession()
+    const [tenant, setTenant] = useState<Tenant | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [upgrading, setUpgrading] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            redirect("/login")
         }
-    })
 
-    if (!membership) {
-        return <div>No organization found.</div>
+        if (status === "authenticated") {
+            // Fetch tenant data
+            fetch('/api/tenant')
+                .then(res => res.json())
+                .then(data => {
+                    setTenant(data.tenant)
+                    setLoading(false)
+                })
+                .catch(() => setLoading(false))
+        }
+    }, [status])
+
+    const handleUpgrade = async (plan: 'PRO' | 'ENTERPRISE') => {
+        setUpgrading(plan)
+        try {
+            await upgradeSubscription(plan)
+            // Refresh the page to show updated data
+            window.location.reload()
+        } catch (error) {
+            console.error('Upgrade failed:', error)
+            setUpgrading(null)
+        }
     }
 
-    const { tenant } = membership
+    if (loading || !tenant) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="animate-spin text-primary" size={32} />
+            </div>
+        )
+    }
+
     const subscription = tenant.subscription
 
     return (
@@ -52,10 +84,15 @@ export default async function BillingPage() {
                                 <p className="font-semibold">{subscription?.plan || "FREE"} Plan</p>
                                 <p className="text-sm text-muted-foreground capitalize">{subscription?.status || "active"}</p>
                             </div>
-                            <span className="text-2xl font-bold">{subscription?.plan === "PRO" ? "$29" : "$0"}<span className="text-sm font-normal text-muted-foreground">/mo</span></span>
+                            <span className="text-2xl font-bold">{subscription?.plan === "PRO" ? "$29" : subscription?.plan === "ENTERPRISE" ? "Custom" : "$0"}<span className="text-sm font-normal text-muted-foreground">/mo</span></span>
                         </div>
-                        {subscription?.plan === "FREE" ? (
-                            <button className="w-full py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium">
+                        {(!subscription || subscription?.plan === "FREE") ? (
+                            <button
+                                onClick={() => handleUpgrade('PRO')}
+                                disabled={upgrading === 'PRO'}
+                                className="w-full py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {upgrading === 'PRO' ? <Loader2 className="animate-spin" size={16} /> : null}
                                 Upgrade to Pro
                             </button>
                         ) : (
@@ -85,6 +122,8 @@ export default async function BillingPage() {
                         price="$0"
                         features={["Up to 5 Projects", "2 Team Members", "Basic Support"]}
                         current={subscription?.plan === "FREE" || !subscription}
+                        onUpgrade={() => { }}
+                        disabled
                     />
                     <PlanCard
                         name="Pro"
@@ -92,12 +131,16 @@ export default async function BillingPage() {
                         features={["Unlimited Projects", "10 Team Members", "Priority Support", "Analytics"]}
                         current={subscription?.plan === "PRO"}
                         recommended
+                        onUpgrade={() => handleUpgrade('PRO')}
+                        upgrading={upgrading === 'PRO'}
                     />
                     <PlanCard
                         name="Enterprise"
                         price="Custom"
                         features={["Unlimited Everything", "SSO", "24/7 Support", "Custom Contract"]}
                         current={subscription?.plan === "ENTERPRISE"}
+                        onUpgrade={() => handleUpgrade('ENTERPRISE')}
+                        upgrading={upgrading === 'ENTERPRISE'}
                     />
                 </div>
             </div>
@@ -105,7 +148,16 @@ export default async function BillingPage() {
     )
 }
 
-function PlanCard({ name, price, features, current, recommended }: { name: string, price: string, features: string[], current?: boolean, recommended?: boolean }) {
+function PlanCard({ name, price, features, current, recommended, onUpgrade, upgrading, disabled }: {
+    name: string,
+    price: string,
+    features: string[],
+    current?: boolean,
+    recommended?: boolean,
+    onUpgrade: () => void,
+    upgrading?: boolean,
+    disabled?: boolean
+}) {
     return (
         <div className={`relative rounded-xl border p-6 shadow-sm flex flex-col ${recommended ? 'border-primary ring-1 ring-primary bg-primary/5' : 'bg-card'}`}>
             {recommended && (
@@ -126,14 +178,16 @@ function PlanCard({ name, price, features, current, recommended }: { name: strin
                 ))}
             </ul>
             <button
-                disabled={current}
-                className={`w-full py-2 rounded-md text-sm font-medium transition-colors ${current
+                disabled={current || disabled || upgrading}
+                onClick={onUpgrade}
+                className={`w-full py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${current
                         ? "bg-muted text-muted-foreground cursor-default"
                         : recommended
                             ? "bg-primary text-primary-foreground hover:bg-primary/90"
                             : "bg-primary text-primary-foreground hover:bg-primary/90"
-                    }`}
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
+                {upgrading ? <Loader2 className="animate-spin" size={16} /> : null}
                 {current ? "Current Plan" : "Upgrade"}
             </button>
         </div>

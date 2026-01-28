@@ -71,3 +71,44 @@ export async function updateTenant(formData: FormData) {
     revalidatePath("/dashboard/settings")
     // No redirect needed, just stay on page
 }
+
+export async function upgradeSubscription(plan: 'PRO' | 'ENTERPRISE') {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+        throw new Error("Unauthorized")
+    }
+
+    // Get tenant
+    const membership = await prisma.tenantUser.findFirst({
+        where: { userId: session.user.id },
+        include: { tenant: { include: { subscription: true } } }
+    })
+
+    if (!membership) {
+        throw new Error("No tenant found")
+    }
+
+    // Update or create subscription
+    if (membership.tenant.subscription) {
+        await prisma.subscription.update({
+            where: { id: membership.tenant.subscription.id },
+            data: {
+                plan,
+                status: 'active',
+                startDate: new Date()
+            }
+        })
+    } else {
+        await prisma.subscription.create({
+            data: {
+                tenantId: membership.tenantId,
+                plan,
+                status: 'active',
+                startDate: new Date()
+            }
+        })
+    }
+
+    revalidatePath("/dashboard/billing")
+    revalidatePath("/dashboard")
+}
