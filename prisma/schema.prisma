@@ -44,10 +44,11 @@ model Tenant {
   auditLogs    AuditLog[]
 
   // Feature Modules
-  projects Project[]
-  tasks    Task[]
-  notes    Note[]
-  apiKeys  ApiKey[]
+  projects    Project[]
+  tasks       Task[]
+  notes       Note[]
+  apiKeys     ApiKey[]
+  invitations Invitation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -168,4 +169,31 @@ model ApiKey {
   createdAt DateTime @default(now())
 
   @@index([tenantId])
+}
+
+model Invitation {
+  id        String           @id @default(cuid())
+  tenantId  String
+  email     String
+  role      Role             @default(MEMBER)
+  status    InvitationStatus @default(PENDING)
+  token     String           @unique
+  expiresAt DateTime
+  invitedBy String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([token])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
 }
