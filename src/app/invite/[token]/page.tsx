@@ -2,7 +2,6 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
-// @ts-expect-error - TypeScript language server hasn't recognized this file yet, but it exists and works at runtime
 import InvitationPageClient from "./InvitationPageClient"
 
 interface PageProps {
