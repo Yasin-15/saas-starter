@@ -8,6 +8,8 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
+  # Exclude NEXTAUTH_URL from secrets scanning (it's a public URL, not a secret)
+  SECRETS_SCAN_OMIT_KEYS = "NEXTAUTH_URL"
 
 # Ensure Prisma generates the client
 [build.processing]
