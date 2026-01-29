@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { LayoutDashboard, Settings, Users, Folder, CreditCard } from "lucide-react"
+import { LayoutDashboard, Settings, Users, Folder, CreditCard, CheckSquare, StickyNote, Key } from "lucide-react"
 
 export default function Sidebar() {
     return (
@@ -30,6 +30,19 @@ export default function Sidebar() {
                 <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-muted-foreground hover:text-sidebar-foreground">
                     <Settings size={20} />
                     Settings
+                </Link>
+                <div className="my-2 border-t border-sidebar-border mx-3"></div>
+                <Link href="/dashboard/tasks" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-muted-foreground hover:text-sidebar-foreground">
+                    <CheckSquare size={20} />
+                    Tasks
+                </Link>
+                <Link href="/dashboard/notes" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-muted-foreground hover:text-sidebar-foreground">
+                    <StickyNote size={20} />
+                    Notes
+                </Link>
+                <Link href="/dashboard/api-keys" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-muted-foreground hover:text-sidebar-foreground">
+                    <Key size={20} />
+                    API Keys
                 </Link>
             </nav>
             <div className="p-4 border-t border-sidebar-border">
