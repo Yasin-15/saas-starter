@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Plus, Folder } from "lucide-react"
 
 export default async function ProjectsPage() {
@@ -84,8 +85,15 @@ export default async function ProjectsPage() {
                 ))}
 
                 {projects.length === 0 && (
-                    <div className="col-span-full flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-xl bg-muted/50 text-muted-foreground">
-                        <Folder className="h-12 w-12 mb-4 opacity-50" />
+                    <div className="col-span-full flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-xl bg-muted/30 text-muted-foreground">
+                        <div className="relative w-48 h-48 mb-6 opacity-90 hover:scale-105 transition-transform duration-500">
+                            <Image
+                                src="/images/projects-illustration.png"
+                                alt="No projects"
+                                fill
+                                className="object-contain drop-shadow-2xl"
+                            />
+                        </div>
                         <h3 className="text-lg font-medium mb-1">No projects found</h3>
                         <p className="mb-4">Get started by creating your first project.</p>
                         <Link

@@ -1,5 +1,6 @@
 import { Users, Activity, CreditCard, ArrowUpRight } from "lucide-react"
 import { getServerSession } from "next-auth"
+import Image from "next/image"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
@@ -41,9 +42,24 @@ export default async function DashboardPage() {
 
     return (
         <>
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-muted-foreground mt-2">Overview of {tenant.name}'s activity.</p>
+
+            <div className="relative mb-8 rounded-2xl overflow-hidden border border-border/50 shadow-lg">
+                <div className="absolute inset-0">
+                    <Image
+                        src="/images/dashboard-welcome.png"
+                        alt="Dashboard Welcome"
+                        fill
+                        className="object-cover opacity-40 dark:opacity-30"
+                        priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"></div>
+                </div>
+                <div className="relative z-10 p-8 sm:p-10">
+                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">Dashboard</h1>
+                    <p className="text-muted-foreground text-lg max-w-xl">
+                        Welcome back! Here's an overview of <span className="text-primary font-semibold">{tenant.name}</span>'s activity and performance.
+                    </p>
+                </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">

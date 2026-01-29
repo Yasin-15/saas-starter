@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { User as UserIcon, Shield, Mail, MoreHorizontal, X, UserPlus, Clock, CheckCircle, XCircle } from "lucide-react"
 
 interface Member {
@@ -146,10 +147,21 @@ export default function TeamPageClient({ members, invitations, currentUserRole }
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
-                    <p className="text-muted-foreground mt-2">
+                    <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+                        Team Members
+                        {/* Small graphic enhancement */}
+                    </h1>
+                    <p className="text-muted-foreground mt-2 max-w-2xl">
                         Manage your team and their permissions.
                     </p>
+                </div>
+                <div className="hidden lg:block absolute top-0 right-0 w-full h-full max-w-sm pointer-events-none opacity-10">
+                    <Image
+                        src="/images/team-illustration.png"
+                        alt="Team Collaboration"
+                        fill
+                        className="object-contain object-right-top"
+                    />
                 </div>
                 {canManageTeam && (
                     <button

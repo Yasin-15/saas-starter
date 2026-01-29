@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Plus, CheckSquare } from "lucide-react"
 
 export default async function TasksPage() {
@@ -79,8 +80,15 @@ export default async function TasksPage() {
                 ))}
 
                 {tasks.length === 0 && (
-                    <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-xl bg-muted/50 text-muted-foreground">
-                        <CheckSquare className="h-12 w-12 mb-4 opacity-50" />
+                    <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-xl bg-muted/30 text-muted-foreground">
+                        <div className="relative w-40 h-40 mb-4 opacity-90">
+                            <Image
+                                src="/images/tasks-illustration.png"
+                                alt="No tasks"
+                                fill
+                                className="object-contain drop-shadow-xl"
+                            />
+                        </div>
                         <h3 className="text-lg font-medium mb-1">No tasks found</h3>
                         <p className="mb-4">Get started by creating your first task.</p>
                     </div>

@@ -1,6 +1,8 @@
 'use client'
 
+
 import Link from "next/link"
+import Image from "next/image"
 import { Zap, Shield, Users, CreditCard, BarChart3, Globe, ArrowRight, Check, Code, Sparkles, Rocket, Star } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -67,6 +69,22 @@ export default function Home() {
             >
               View Demo
             </Link>
+
+          </div>
+
+          <div className="relative w-full max-w-5xl mx-auto mb-16 animate-fade-in-up">
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-border/50 shadow-2xl shadow-primary/20 bg-background/50 backdrop-blur-xl">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-primary/5 z-10"></div>
+              <Image
+                src="/images/landing-hero.png"
+                alt="SaaS Dashboard Interface"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            {/* Glossy reflection effect */}
+            <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-primary/30 to-transparent opacity-20 pointer-events-none z-20"></div>
           </div>
 
           {/* Stats with Animation */}

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { updateTenant } from "../actions"
 import { Save } from "lucide-react"
+import Image from "next/image"
 
 export default async function SettingsPage() {
     const session = await getServerSession(authOptions)
@@ -25,11 +26,24 @@ export default async function SettingsPage() {
 
     return (
         <div className="max-w-2xl">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-                <p className="text-muted-foreground mt-2">
-                    Manage your organization settings and preferences.
-                </p>
+
+            <div className="relative mb-8 rounded-xl overflow-hidden border border-border/50 bg-muted/20 p-6 md:p-8 flex items-center justify-between">
+                <div className="relative z-10">
+                    <h1 className="text-3xl font-bold tracking-tight mb-2">Settings</h1>
+                    <p className="text-muted-foreground max-w-md">
+                        Manage your organization settings and preferences.
+                    </p>
+                </div>
+                <div className="hidden md:block relative w-32 h-32 opacity-80 pointer-events-none">
+                    <Image
+                        src="/images/settings-illustration.png"
+                        alt="Settings"
+                        fill
+                        className="object-contain"
+                    />
+                </div>
+                {/* Decorative background blob */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3"></div>
             </div>
 
             <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">

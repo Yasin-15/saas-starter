@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { Check, CreditCard, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { upgradeSubscription } from "../actions"
+import Image from "next/image"
 
 interface Subscription {
     plan: string
@@ -63,13 +64,24 @@ export default function BillingPage() {
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Billing & Subscription</h1>
-                    <p className="text-muted-foreground mt-2">
+
+            <div className="relative mb-8 rounded-xl overflow-hidden border border-border/50 bg-muted/20 p-6 md:p-8 flex items-center justify-between">
+                <div className="relative z-10">
+                    <h1 className="text-3xl font-bold tracking-tight mb-2">Billing & Subscription</h1>
+                    <p className="text-muted-foreground max-w-md">
                         Manage your subscription and billing details.
                     </p>
                 </div>
+                <div className="hidden md:block relative w-40 h-32 opacity-90 pointer-events-none">
+                    <Image
+                        src="/images/billing-header.png"
+                        alt="Billing"
+                        fill
+                        className="object-contain"
+                    />
+                </div>
+                {/* Decorative background blob */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3"></div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -181,10 +193,10 @@ function PlanCard({ name, price, features, current, recommended, onUpgrade, upgr
                 disabled={current || disabled || upgrading}
                 onClick={onUpgrade}
                 className={`w-full py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${current
-                        ? "bg-muted text-muted-foreground cursor-default"
-                        : recommended
-                            ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                            : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    ? "bg-muted text-muted-foreground cursor-default"
+                    : recommended
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90"
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
                 {upgrading ? <Loader2 className="animate-spin" size={16} /> : null}
